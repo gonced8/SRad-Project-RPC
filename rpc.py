@@ -23,15 +23,28 @@ if __name__ == "__main__":
 
     plt.figure()
     plt.plot(t, s)
+    plt.title("Simple Pulse")
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")
-    plt.title("Simple Pulse")
+    plt.grid(True)
 
+    npoints = s.size*10
+    S = np.fft.rfft(s, npoints)
+    freq = np.fft.rfftfreq(npoints, Ts)
 
-
-
-
-
-
+    Sabs = np.abs(S)
+    Sphase = np.angle(S)
+    
+    plt.figure()
+    plt.subplot(2, 1, 1)
+    plt.plot(freq, Sabs)
+    plt.title("Fourier Transform")
+    plt.ylabel("amplitude")
+    plt.grid(True)
+    plt.subplot(2, 1, 2)
+    plt.plot(freq, Sphase)
+    plt.xlabel("frequency [Hz]")
+    plt.ylabel("phase [rad/s]")
+    plt.grid(True)
 
     plt.show()    
