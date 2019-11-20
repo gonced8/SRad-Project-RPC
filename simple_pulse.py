@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import hilbert
+from scipy.signal import hilbert, welch
 
 
 def fft(t, s, npoints_factor=1):
@@ -103,7 +103,9 @@ if __name__ == "__main__":
     # Envelope of matched filter output with noise
     noisy_envelope_o = envelope(noisy_output)
 
-    
+    # Noise FFT
+    Nfreq, Nabs = welch(input_noise, 1/Ts)
+
     # Plot of Signal
     # Plot of FFT
     plt.figure()
@@ -202,6 +204,22 @@ if __name__ == "__main__":
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")
     plt.legend(["output", "envelope"])
+    plt.grid(True)
+    plt.tight_layout()
+
+    # Plot of Noise
+    # Plot of FFT
+    plt.figure()
+    plt.subplot(2, 1, 1)
+    plt.plot(t, input_noise)
+    plt.title("Received Noise")
+    plt.xlabel("time [s]")
+    plt.ylabel("amplitude")
+    plt.grid(True)
+    plt.subplot(2, 1, 2)
+    plt.plot(Nfreq, Nabs)
+    plt.title("Noise PSD")
+    plt.ylabel("power")
     plt.grid(True)
     plt.tight_layout()
 
