@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy.signal import hilbert, welch
+from scipy.signal import chirp, hilbert, welch
 
 
 def fft(t, s, npoints_factor=1):
@@ -31,11 +31,12 @@ if __name__ == "__main__":
 
     # Pulse
     A = 1
-    pulse = A*np.sin(2*np.pi*f*t[t<=tau])
+    df = 16
+    pulse = A*chirp(t[t<tau], f-df/2, tau, f+df/2)
 
     # Signal
     signal = np.zeros(t.shape)
-    signal[t<=tau] = pulse
+    signal[t<tau] = pulse
 
     # Signal envelope (simple pulse)
     envelope_s = envelope(signal)
@@ -52,13 +53,13 @@ if __name__ == "__main__":
     t1 = 3
     k1 = 0.5
     echo1 = np.zeros(t.shape)
-    echo1[(t>=t1) & (t<=t1+tau)] = k1*pulse
+    echo1[(t>=t1) & (t<t1+tau)] = k1*pulse
     
     # Echo 2
     t2 = 6
     k2 = 0.3
     echo2 = np.zeros(t.shape)
-    echo2[(t>=t2) & (t<=t2+tau)] = k2*pulse
+    echo2[(t>=t2) & (t<t2+tau)] = k2*pulse
 
     # Both echoes
     echoes = echo1 + echo2
@@ -74,7 +75,7 @@ if __name__ == "__main__":
     t3 = 4.5
     k3 = 0.3
     echo3 = np.zeros(t.shape)
-    echo3[(t>=t3) & (t<=t3+tau)] = k3*pulse
+    echo3[(t>=t3) & (t<t3+tau)] = k3*pulse
 
     # Both echoes (indistinguishable)
     echoesi = echo1 + echo3
