@@ -23,7 +23,7 @@ def envelope(signal):
 
 if __name__ == "__main__":
     f = 10      # [Hz]
-    tau = 1.5   # [s]
+    tau = 1     # [s]
     Ts = np.min([1/f, tau])/10     # Nyquist theorem is /2
 
     tspan = [0, 10]
@@ -55,7 +55,7 @@ if __name__ == "__main__":
     echo1[(t>=t1) & (t<=t1+tau)] = k1*pulse
     
     # Echo 2
-    t2 = 6
+    t2 = 5
     k2 = 0.3
     echo2 = np.zeros(t.shape)
     echo2[(t>=t2) & (t<=t2+tau)] = k2*pulse
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     envelope_o = envelope(output)
 
     # Echo 3 (indistinguishable)
-    t3 = 4.5
+    t3 = 4
     k3 = 0.3
     echo3 = np.zeros(t.shape)
     echo3[(t>=t3) & (t<=t3+tau)] = k3*pulse
@@ -86,15 +86,10 @@ if __name__ == "__main__":
     # Envelope of matched filter output (indistinguishable)
     envelope_oi = envelope(outputi)
 
-    # Noisy signal
-    No = 0.1
-    output_noise = np.random.normal(0, No, t.size)
-    noisy_signal = signal+output_noise
-
     # Noisy echoes
-    Ni = 0.1
-    input_noise = np.random.normal(0, Ni, t.size)
-    noisy_echoes = echoes + input_noise
+    N = 0.5
+    noise = np.random.normal(0, N, t.size)
+    noisy_echoes = echoes + noise
 
     # Matched filter output both echoes with noise
     noisy_output = np.convolve(matched, noisy_echoes)*Ts
@@ -104,7 +99,7 @@ if __name__ == "__main__":
     noisy_envelope_o = envelope(noisy_output)
 
     # Noise FFT
-    Nfreq, Nabs = welch(input_noise, 1/Ts, nperseg=input_noise.size)
+    Nfreq, Nabs = welch(noise, 1/Ts, nperseg=noise.size)
 
     # Plot of Signal
     # Plot of FFT
@@ -192,7 +187,7 @@ if __name__ == "__main__":
     # Plot of matched filter response with noise
     plt.figure()
     plt.subplot(2, 1, 1)
-    plt.plot(t, noisy_signal, t, noisy_echoes)
+    plt.plot(t, signal, t, noisy_echoes)
     plt.title("Simple Pulse and 2 Echoes with Noise")
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")
@@ -211,7 +206,7 @@ if __name__ == "__main__":
     # Plot of FFT
     plt.figure()
     plt.subplot(2, 1, 1)
-    plt.plot(t, input_noise)
+    plt.plot(t, noise)
     plt.title("Received Noise")
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")

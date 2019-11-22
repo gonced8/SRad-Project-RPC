@@ -24,15 +24,28 @@ def envelope(signal):
 if __name__ == "__main__":
     f = 10      # [Hz]
     tau = 1     # [s]
-    Ts = np.min([1/f, tau])/10     # Nyquist theorem is /2
+    Ts = np.min([1/f, tau])/20     # Nyquist theorem is /2
 
     tspan = [0, 10]
     t = np.arange(tspan[0], tspan[1], Ts)
 
     # Pulse
     A = 1
-    df = 16
-    pulse = A*chirp(t[t<tau], f-df/2, tau, f+df/2)
+    tpulse = t[t<tau]
+    pulse = np.sin(2*np.pi*f*tpulse)
+    code = "+++--+-"
+    l = len(code)
+    n = 2
+    n = np.max([n, 1])
+    tphase = n/2/f
+    phase = np.ones(pulse.shape)
+    
+    for i in range(int(tau/tphase+0.5)):
+        if code[i%l] == '-':
+            #pulse[(tpulse>=i*tphase) & (tpulse<(i+1)*tphase)] *= -1
+            phase[(tpulse>=i*tphase) & (tpulse<(i+1)*tphase)] = -1
+
+    pulse = pulse*phase
 
     # Signal
     signal = np.zeros(t.shape)
@@ -42,7 +55,7 @@ if __name__ == "__main__":
     envelope_s = envelope(signal)
 
     # FFT
-    freq, Sabs, Sphase = fft(t, signal, 10)
+    freq, Sabs, Sphase = fft(t, pulse, 10)
 
     # Matched filter response and FFT
     tm = t[:pulse.size]
@@ -106,16 +119,16 @@ if __name__ == "__main__":
     # Plot of FFT
     plt.figure()
     plt.subplot(3, 1, 1)
-    plt.plot(t, signal)
-    plt.plot(t, envelope_s, 'k', lw=0.5)
-    plt.title("Chirp")
+    plt.plot(tpulse, pulse)
+    plt.plot(tpulse[tpulse<tphase*l], phase[tpulse<tphase*l], 'r', lw=1)
+    plt.title("Binary Pulses")
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")
-    plt.legend(["signal", "envelope"], loc='upper right')
+    plt.legend(["signal", "baker code"], loc='upper right')
     plt.grid(True)
     plt.subplot(3, 1, 2)
     plt.plot(freq, Sabs)
-    plt.title("Fourier Transform of the Chirp")
+    plt.title("Fourier Transform of the Binary Pulses")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 3)
@@ -151,7 +164,7 @@ if __name__ == "__main__":
     plt.figure()
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, echoes)
-    plt.title("Chirp and 2 Echoes")
+    plt.title("Binary Pulses and 2 Echoes")
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
@@ -170,7 +183,7 @@ if __name__ == "__main__":
     plt.figure()
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, echoesi)
-    plt.title("Chirp and 2 Indistinguishable Echoes")
+    plt.title("Binary Pulses and 2 Indistinguishable Echoes")
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
@@ -189,7 +202,7 @@ if __name__ == "__main__":
     plt.figure()
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, noisy_echoes)
-    plt.title("Chirp and 2 Echoes with Noise")
+    plt.title("Binary Pulses and 2 Echoes with Noise")
     plt.xlabel("time [s]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
