@@ -138,10 +138,10 @@ def ambiguity(u_basic=DEFAULT_SIGNAL,
     dphas = np.multiply(temp, float(r) / 2. / np.pi)
 
 
-    fig_1 = plt.figure(1)
+    fig_1 = plt.figure()
 
     plt.clf()
-    plt.hold(False)
+    #plt.hold(False)
 
     axes1 = plt.subplot(3, 1, 1)
     zerovec = np.array([[0]])
@@ -270,11 +270,11 @@ def ambiguity(u_basic=DEFAULT_SIGNAL,
     # cm = np.zeros((64, 3))
     # cm[:,2] = np.reshape(np.ones((64, 1)), (64,))
 
-    fig_2 = plt.figure(2)
+    fig_2 = plt.figure()
 
     plt.clf()
 
-    plt.hold(False)
+    #plt.hold(False)
 
     ax3d = plt.subplot(111, projection='3d')
 
@@ -289,7 +289,7 @@ def ambiguity(u_basic=DEFAULT_SIGNAL,
         ax3d.plot_surface(mesh_x, mesh_y, mesh_z,
                           linewidth=0, cmap=cm.coolwarm)
 
-    plt.hold(True)
+    #plt.hold(True)
 
     x_coords = delay
     y_coords = np.array([[0, 0]]).T
@@ -313,14 +313,15 @@ def ambiguity(u_basic=DEFAULT_SIGNAL,
     ax3d.set_zlabel(' $|\\it\\chi(\\it\\tau,\\it\\nu)|$ ',
                     fontsize=12)
 
-    plt.hold(False)
+    #plt.hold(False)
 
     fig_2.suptitle(plot_title + ', 3-D Plot')
 
     if plot2_file is not None:
         fig_2.savefig(plot2_file, format=plot_format)
     else:
-        plt.show()
+        #plt.show()
+        pass
 
 
     return (delay, freq, a)
