@@ -13,6 +13,7 @@ def fft(t, s, npoints_factor=1):
     Sabs = np.abs(S)*Ts
     Sabs[1:] *= 2
     Sphase = np.angle(S)
+    Sphase = np.unwrap(Sphase)
 
     return freq, Sabs, Sphase
 
@@ -28,7 +29,7 @@ if __name__ == "__main__":
 
     f = 10      # [MHz]
     tau = 1     # [us]
-    Ts = np.min([1/f, tau])/10     # Nyquist theorem is /2
+    Ts = np.min([1/f, tau])/100     # Nyquist theorem is /2
 
     tspan = [0, 10]
     t = np.arange(tspan[0], tspan[1], Ts)
@@ -45,7 +46,7 @@ if __name__ == "__main__":
     envelope_s = envelope(signal)
 
     # FFT
-    freq, Sabs, Sphase = fft(t, signal, 10)
+    freq, Sabs, Sphase = fft(t, pulse, 10)
 
     # Matched filter response and FFT
     tm = t[:pulse.size]
@@ -78,7 +79,7 @@ if __name__ == "__main__":
     t3 = 4
     k3 = 0.3
     echo3 = np.zeros(t.shape)
-    echo2[(t>=t3) & (t<=t3+tau)] = k3*pulse
+    echo3[(t>=t3) & (t<=t3+tau)] = k3*pulse
 
     # Both echoes (indistinguishable)
     echoesi = echo1 + echo3
@@ -92,6 +93,7 @@ if __name__ == "__main__":
 
     # Noisy echoes
     N = 0.5
+    np.random.seed(0)
     noise = np.random.normal(0, N, t.size)
     noisy_echoes = echoes + noise
 
@@ -106,21 +108,21 @@ if __name__ == "__main__":
     Nfreq, Nabs = welch(noise, 1/Ts, nperseg=noise.size)
 
     # Plot of Signal
-    # Plot of FFT
     plt.figure()
     plt.subplot(3, 1, 1)
-    plt.plot(t[t<3*tau], signal[t<3*tau])
+    plt.plot(t[t<1.5*tau], signal[t<1.5*tau])
     plt.title("Simple Pulse")
     plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.grid(True)
+    # Plot of FFT
     plt.subplot(3, 1, 2)
     plt.plot(freq[freq<2*f], Sabs[freq<2*f])
     plt.title("Fourier Transform of the Simple Pulse")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 3)
-    plt.plot(freq, Sphase)
+    plt.plot(freq[freq<2*f], Sphase[freq<2*f])
     plt.xlabel("frequency [MHz]")
     plt.ylabel("phase [rad/s]")
     plt.grid(True)
@@ -138,16 +140,18 @@ if __name__ == "__main__":
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 2)
-    plt.plot(Mfreq, Mabs)
+    plt.plot(Mfreq[Mfreq<2*f], Mabs[Mfreq<2*f])
     plt.title("Matched filter frequency response")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 3)
-    plt.plot(Mfreq, Mphase)
+    plt.plot(Mfreq[Mfreq<2*f], Mphase[Mfreq<2*f])
     plt.xlabel("frequency [MHz]")
     plt.ylabel("phase [rad/s]")
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/simple_pulse_matched_filter.svg")
 
     # Plot of signal and echoes
     # Plot of matched filter response
@@ -167,6 +171,8 @@ if __name__ == "__main__":
     plt.legend(["output", "envelope"])
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/simple_pulse_distinguishable.svg")
 
     # Plot of signal and indistinguishable echoes
     # Plot of matched filter response
@@ -186,6 +192,8 @@ if __name__ == "__main__":
     plt.legend(["output", "envelope"])
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/simple_pulse_indistinguishable.svg")
 
     # Plot of signal and echoes with noise
     # Plot of matched filter response with noise
@@ -195,7 +203,7 @@ if __name__ == "__main__":
     plt.title("Simple Pulse and 2 Echoes with Noise")
     plt.xlabel("time [us]")
     plt.ylabel("amplitude")
-    plt.legend(["signal", "echoes"])
+    plt.legend(["signal", "echoes ({}={})".format(r'$\sigma_n$' ,N)])
     plt.grid(True)
     plt.subplot(2, 1, 2)
     plt.plot(t, noisy_output, t, noisy_envelope_o, 'k', lw=0.5)
@@ -205,6 +213,8 @@ if __name__ == "__main__":
     plt.legend(["output", "envelope"])
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/simple_pulse_distinguishable_noise.svg")
 
     # Plot of Noise
     # Plot of FFT
@@ -221,7 +231,8 @@ if __name__ == "__main__":
     plt.ylabel("power")
     plt.grid(True)
     plt.tight_layout()
-
+    if savefig:
+        plt.savefig("figs/simple_pulse_noise.svg")
 
     # Show plots
     if showplot:

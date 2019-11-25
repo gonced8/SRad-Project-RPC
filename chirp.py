@@ -13,6 +13,7 @@ def fft(t, s, npoints_factor=1):
     Sabs = np.abs(S)*Ts
     Sabs[1:] *= 2
     Sphase = np.angle(S)
+    Sphase = np.unwrap(Sphase)
 
     return freq, Sabs, Sphase
 
@@ -23,8 +24,11 @@ def envelope(signal):
 
 
 if __name__ == "__main__":
-    f = 10      # [Hz]
-    tau = 1     # [s]
+    showplot = False
+    savefig = True
+
+    f = 10      # [Mhz]
+    tau = 1     # [us]
     Ts = np.min([1/f, tau])/10     # Nyquist theorem is /2
 
     tspan = [0, 10]
@@ -107,24 +111,24 @@ if __name__ == "__main__":
     # Plot of FFT
     plt.figure()
     plt.subplot(3, 1, 1)
-    plt.plot(t, signal)
-    plt.plot(t, envelope_s, 'k', lw=0.5)
+    plt.plot(t[t<1.5*tau], signal[t<1.5*tau])
     plt.title("Chirp")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
-    plt.legend(["signal", "envelope"], loc='upper right')
     plt.grid(True)
     plt.subplot(3, 1, 2)
-    plt.plot(freq, Sabs)
+    plt.plot(freq[freq<2*f], Sabs[freq<2*f])
     plt.title("Fourier Transform of the Chirp")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 3)
-    plt.plot(freq, Sphase)
-    plt.xlabel("frequency [Hz]")
+    plt.plot(freq[freq<2*f], Sphase[freq<2*f])
+    plt.xlabel("frequency [Mhz]")
     plt.ylabel("phase [rad/s]")
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/chirp.svg")
 
     # Plot of Matched Filter
     # Plot of Matched Filter FFT
@@ -132,7 +136,7 @@ if __name__ == "__main__":
     plt.subplot(3, 1, 1)
     plt.plot(tm, matched)
     plt.title("Matched filter time response")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 2)
@@ -142,7 +146,7 @@ if __name__ == "__main__":
     plt.grid(True)
     plt.subplot(3, 1, 3)
     plt.plot(Mfreq, Mphase)
-    plt.xlabel("frequency [Hz]")
+    plt.xlabel("frequency [Mhz]")
     plt.ylabel("phase [rad/s]")
     plt.grid(True)
     plt.tight_layout()
@@ -153,14 +157,14 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, echoes)
     plt.title("Chirp and 2 Echoes")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
     plt.plot(t, output, t, envelope_o, 'k', lw=0.5)
     plt.title("Matched filter output")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["output", "envelope"])
     plt.grid(True)
@@ -172,14 +176,14 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, echoesi)
     plt.title("Chirp and 2 Indistinguishable Echoes")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
     plt.plot(t, outputi, t, envelope_oi, 'k', lw=0.5)
     plt.title("Matched filter output")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["output", "envelope"])
     plt.grid(True)
@@ -191,14 +195,14 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, noisy_echoes)
     plt.title("Chirp and 2 Echoes with Noise")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
     plt.plot(t, noisy_output, t, noisy_envelope_o, 'k', lw=0.5)
     plt.title("Matched filter output")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["output", "envelope"])
     plt.grid(True)
@@ -210,7 +214,7 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, noise)
     plt.title("Received Noise")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(2, 1, 2)
@@ -220,6 +224,6 @@ if __name__ == "__main__":
     plt.grid(True)
     plt.tight_layout()
 
-
     # Show plots
-    plt.show()
+    if showplot:
+        plt.show()
