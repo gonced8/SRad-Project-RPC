@@ -106,4 +106,4 @@ venv.bak/
 
 # env
 activate
-figs/
+figs/*
