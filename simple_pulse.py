@@ -11,6 +11,7 @@ def fft(t, s, npoints_factor=1):
 
     S = np.fft.rfft(s, npoints)
     Sabs = np.abs(S)*Ts
+    Sabs[1:] *= 2
     Sphase = np.angle(S)
 
     return freq, Sabs, Sphase
@@ -22,8 +23,11 @@ def envelope(signal):
 
 
 if __name__ == "__main__":
-    f = 10      # [Hz]
-    tau = 1     # [s]
+    showplot = False
+    savefig = True
+
+    f = 10      # [MHz]
+    tau = 1     # [us]
     Ts = np.min([1/f, tau])/10     # Nyquist theorem is /2
 
     tspan = [0, 10]
@@ -74,7 +78,7 @@ if __name__ == "__main__":
     t3 = 4
     k3 = 0.3
     echo3 = np.zeros(t.shape)
-    echo3[(t>=t3) & (t<=t3+tau)] = k3*pulse
+    echo2[(t>=t3) & (t<=t3+tau)] = k3*pulse
 
     # Both echoes (indistinguishable)
     echoesi = echo1 + echo3
@@ -105,24 +109,24 @@ if __name__ == "__main__":
     # Plot of FFT
     plt.figure()
     plt.subplot(3, 1, 1)
-    plt.plot(t, signal)
-    plt.plot(t, envelope_s, 'k', lw=0.5)
+    plt.plot(t[t<3*tau], signal[t<3*tau])
     plt.title("Simple Pulse")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
-    plt.legend(["signal", "envelope"], loc='upper right')
     plt.grid(True)
     plt.subplot(3, 1, 2)
-    plt.plot(freq, Sabs)
+    plt.plot(freq[freq<2*f], Sabs[freq<2*f])
     plt.title("Fourier Transform of the Simple Pulse")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 3)
     plt.plot(freq, Sphase)
-    plt.xlabel("frequency [Hz]")
+    plt.xlabel("frequency [MHz]")
     plt.ylabel("phase [rad/s]")
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/simple_pulse.svg")
 
     # Plot of Matched Filter
     # Plot of Matched Filter FFT
@@ -130,7 +134,7 @@ if __name__ == "__main__":
     plt.subplot(3, 1, 1)
     plt.plot(tm, matched)
     plt.title("Matched filter time response")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(3, 1, 2)
@@ -140,7 +144,7 @@ if __name__ == "__main__":
     plt.grid(True)
     plt.subplot(3, 1, 3)
     plt.plot(Mfreq, Mphase)
-    plt.xlabel("frequency [Hz]")
+    plt.xlabel("frequency [MHz]")
     plt.ylabel("phase [rad/s]")
     plt.grid(True)
     plt.tight_layout()
@@ -151,14 +155,14 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, echoes)
     plt.title("Simple Pulse and 2 Echoes")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
     plt.plot(t, output, t, envelope_o, 'k', lw=0.5)
     plt.title("Matched filter output")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["output", "envelope"])
     plt.grid(True)
@@ -170,14 +174,14 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, echoesi)
     plt.title("Simple Pulse and 2 Indistinguishable Echoes")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
     plt.plot(t, outputi, t, envelope_oi, 'k', lw=0.5)
     plt.title("Matched filter output")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["output", "envelope"])
     plt.grid(True)
@@ -189,14 +193,14 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, signal, t, noisy_echoes)
     plt.title("Simple Pulse and 2 Echoes with Noise")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
     plt.plot(t, noisy_output, t, noisy_envelope_o, 'k', lw=0.5)
     plt.title("Matched filter output")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.legend(["output", "envelope"])
     plt.grid(True)
@@ -208,7 +212,7 @@ if __name__ == "__main__":
     plt.subplot(2, 1, 1)
     plt.plot(t, noise)
     plt.title("Received Noise")
-    plt.xlabel("time [s]")
+    plt.xlabel("time [us]")
     plt.ylabel("amplitude")
     plt.grid(True)
     plt.subplot(2, 1, 2)
@@ -220,4 +224,5 @@ if __name__ == "__main__":
 
 
     # Show plots
-    plt.show()
+    if showplot:
+        plt.show()

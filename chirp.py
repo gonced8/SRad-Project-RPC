@@ -11,6 +11,7 @@ def fft(t, s, npoints_factor=1):
 
     S = np.fft.rfft(s, npoints)
     Sabs = np.abs(S)*Ts
+    Sabs[1:] *= 2
     Sphase = np.angle(S)
 
     return freq, Sabs, Sphase
