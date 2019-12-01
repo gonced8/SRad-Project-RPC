@@ -39,10 +39,13 @@ if __name__ == "__main__":
     df = 16
     pulse = A*chirp(t[t<tau], f-df/2, tau, f+df/2)
 
+    # Frequency
+    frequency = f-df/2 + df * t[t<=tau] / tau
+
     # Signal
     signal = np.zeros(t.shape)
     signal[t<tau] = pulse
-
+    
     # Signal envelope (simple pulse)
     envelope_s = envelope(signal)
 
@@ -162,13 +165,16 @@ if __name__ == "__main__":
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
-    plt.plot(t, output, t, envelope_o, 'k', lw=0.5)
+    #plt.plot(t, output, t, envelope_o, 'k', lw=0.5)
+    plt.plot(t, output)
     plt.title("Matched filter output")
     plt.xlabel("time [us]")
     plt.ylabel("amplitude")
-    plt.legend(["output", "envelope"])
+    #plt.legend(["output", "envelope"])
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/chirp_distinguishable.svg")
 
     # Plot of signal and indistinguishable echoes
     # Plot of matched filter response
@@ -181,13 +187,16 @@ if __name__ == "__main__":
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
-    plt.plot(t, outputi, t, envelope_oi, 'k', lw=0.5)
+    #plt.plot(t, outputi, t, envelope_oi, 'k', lw=0.5)
+    plt.plot(t, outputi)
     plt.title("Matched filter output")
     plt.xlabel("time [us]")
     plt.ylabel("amplitude")
-    plt.legend(["output", "envelope"])
+    #plt.legend(["output", "envelope"])
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/chirp_indistinguishable.svg")
 
     # Plot of signal and echoes with noise
     # Plot of matched filter response with noise
@@ -200,13 +209,16 @@ if __name__ == "__main__":
     plt.legend(["signal", "echoes"])
     plt.grid(True)
     plt.subplot(2, 1, 2)
-    plt.plot(t, noisy_output, t, noisy_envelope_o, 'k', lw=0.5)
+    #plt.plot(t, noisy_output, t, noisy_envelope_o, 'k', lw=0.5)
+    plt.plot(t, noisy_output)
     plt.title("Matched filter output")
     plt.xlabel("time [us]")
     plt.ylabel("amplitude")
-    plt.legend(["output", "envelope"])
+    #plt.legend(["output", "envelope"])
     plt.grid(True)
     plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/chirp_distinguishable_noise.svg")
 
     # Plot of Noise
     # Plot of FFT
@@ -223,6 +235,32 @@ if __name__ == "__main__":
     plt.ylabel("power")
     plt.grid(True)
     plt.tight_layout()
+
+    # Plot of Signal
+    # Plot of FFT and frequency
+    plt.figure()
+    plt.subplot(3, 1, 1)
+    plt.plot(t[t<1.5*tau], signal[t<1.5*tau])
+    plt.title("Chirp")
+    plt.xlabel("time [us]")
+    plt.ylabel("amplitude")
+    plt.grid(True)
+    plt.subplot(3, 1, 2)
+    plt.plot(t[t<=tau], frequency)
+    plt.xlim(right=1.55*tau)
+    plt.title("Instantaneous Frequency")
+    plt.xlabel("time [us]")
+    plt.ylabel("frequency [MHz]")
+    plt.grid(True)
+    plt.subplot(3, 1, 3)
+    plt.plot(freq[freq<2*f], Sabs[freq<2*f])
+    plt.title("Fourier Transform of the Chirp")
+    plt.xlabel("frequency [Mhz]")
+    plt.ylabel("amplitude")
+    plt.grid(True)
+    plt.tight_layout()
+    if savefig:
+        plt.savefig("figs/chirp_frequency.svg")
 
     # Show plots
     if showplot:
