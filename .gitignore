@@ -108,4 +108,4 @@ venv.bak/
 activate
 figs/*
 
-.DStore
+.DS_Store
